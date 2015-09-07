@@ -1,11 +1,8 @@
 {
   "name": "simple-html-website",
-  "version": "1.0",
-  "author": {
-    "name": "Ahmad Alfy",
-    "url": "http://alfy.me"
-  },
+  "version": "1.0.0",
   "description": "Workflow using Grunt to build HTML websites with ease.",
+  "author": "Ahmad Alfy <ahmad@alfy.me>",
   "repository": {
     "type": "git",
     "url": "https://github.com/ahmadalfy/simple-html-project.git"
