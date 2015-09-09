@@ -1,4 +1,3 @@
-/* global GMaps */
 'use strict';
 $(document).ready(function(){
 
