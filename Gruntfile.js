@@ -238,13 +238,13 @@ module.exports = function (grunt) {
       options: {
         trueColor: true,
         precomposed: true,
-        appleTouchBackgroundColor: "",
+        appleTouchBackgroundColor: '',
         coast: true,
         windowsTile: true,
         tileBlackWhite: false,
-        tileColor: "auto",
+        tileColor: 'auto',
         html: '<%= config.dist %>/*.html',
-        HTMLPrefix: "/images/icons/"
+        HTMLPrefix: '/images/icons/'
       },
       icons: {
         src: '<%= config.app %>/images/favicon-src/logo.png',
