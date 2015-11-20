@@ -36,6 +36,14 @@ module.exports = function (grunt) {
         files: ['bower.json'],
         tasks: ['wiredep']
       },
+      babel: {
+        files: ['<%= config.app %>/scripts/{,*/}*.js'],
+        tasks: ['babel:dist']
+      },
+      babelTest: {
+        files: ['test/spec/{,*/}*.js'],
+        tasks: ['babel:test', 'test:watch']
+      },
       jade: {
         files: ['<%= config.app %>/{,*/}*.jade'],
         tasks: ['jade']
@@ -158,6 +166,31 @@ module.exports = function (grunt) {
           run: true,
           urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
         }
+      }
+    },
+
+    // Compiles ES6 with Babel
+    babel: {
+      options: {
+        sourceMap: true
+      },
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%= config.app %>/scripts',
+          src: '{,*/}*.js',
+          dest: '.tmp/scripts',
+          ext: '.js'
+        }]
+      },
+      test: {
+        files: [{
+          expand: true,
+          cwd: 'test/spec',
+          src: '{,*/}*.js',
+          dest: '.tmp/spec',
+          ext: '.js'
+        }]
       }
     },
 
@@ -452,13 +485,16 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up build process
     concurrent: {
       server: [
+        'babel:dist',
         'sass:server',
         'copy:styles'
       ],
       test: [
+        'babel',
         'copy:styles'
       ],
       dist: [
+        'babel',
         'sass',
         'copy:styles',
         'imagemin',
