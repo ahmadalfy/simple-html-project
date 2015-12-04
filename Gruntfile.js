@@ -460,6 +460,20 @@ module.exports = function (grunt) {
             '!<%= config.dist %>/scripts/vendor/*'
           ]
         },
+        // Define any tests you want to explicitly include
+        tests : [],
+        // Useful for excluding any tests that this tool will match
+        // e.g. you use .notification class for notification elements,
+        // but don’t want the test for Notification API
+        excludeTests: [],
+        // Based on default settings on http://modernizr.com/download/
+        options : [
+          'setClasses',
+          'addTest',
+          'html5printshiv',
+          'testProp',
+          'fnBind'
+        ],
         uglify: true
       }
     },
