@@ -1,2 +1,35 @@
+@charset 'UTF-8';
+
+// 0. Bower scss components
 // bower:scss
 // endbower
+
+// 1. Configuration and helpers
+@import
+  'utils/variables',
+  'utils/functions',
+  'utils/mixins';
+
+// 2. Base stuff
+@import
+  'base/base',
+  'base/fonts',
+  'base/typography',
+  'base/helpers';
+
+// 3. Layout-related sections
+@import
+  'layout/header',
+  'layout/footer';
+
+// 4. Components
+@import
+  'components/button';
+
+// 5. Page-specific styles
+@import
+  'pages/home';
+
+// 6. Themes
+@import
+  'themes/default';
