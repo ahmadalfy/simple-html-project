@@ -91,10 +91,11 @@ module.exports = function (grunt) {
             middleware: [
               function (req, res, next) {
                 var endsWithExtension = /^.*[.]\w+$/;
-                if (!endsWithExtension.test(req.url)) { // it doesnt have an extension
-                  req.url = req.url.replace(/\/$/, '') + '.html';
+                var url = req.url;
+                if (!endsWithExtension.test(url) && url.length > 1) { // it doesnt have an extension and not '/'
+                  url = url.replace(/\/$/, '') + '.html';
                 }
-
+                req.url = url;
                 next();
               }
             ]
