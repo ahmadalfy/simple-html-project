@@ -36,23 +36,24 @@ module.exports = function (grunt) {
         files: ['bower.json'],
         tasks: ['wiredep']
       },
-      // babel: {
-      //   files: ['<%= config.app %>/scripts/{,*/}*.js'],
-      //   tasks: ['babel:dist']
-      // },
+      babel: {
+        files: ['<%= config.app %>/scripts/{,*/}*.js'],
+        tasks: ['babel:dist']
+      },
       babelTest: {
         files: ['test/spec/{,*/}*.js'],
         tasks: ['babel:test', 'test:watch']
       },
-      jade: {
-        files: ['<%= config.app %>/{,*/}*.jade'],
-        tasks: ['jade']
+      pug: {
+        files: ['<%= config.app %>/{,*/}*.pug'],
+        tasks: ['pug']
       },
       gruntfile: {
-        files: ['Gruntfile.js']
+        files: ['Gruntfile.js'],
+        tasks: ['copy:server']
       },
       sass: {
-        files: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
+        files: ['<%= config.app %>/styles/**/*.{scss,sass}'],
         tasks: ['sass:server', 'autoprefixer']
       },
       styles: {
@@ -86,7 +87,18 @@ module.exports = function (grunt) {
             baseDir: ['.tmp', config.app],
             routes: {
               '/bower_components': './bower_components'
-            }
+            },
+            middleware: [
+              function (req, res, next) {
+                var endsWithExtension = /^.*[.]\w+$/;
+                var url = req.url;
+                if (!endsWithExtension.test(url) && url.length > 1) { // it doesnt have an extension and not '/'
+                  url = url.replace(/\/$/, '') + '.html';
+                }
+                req.url = url;
+                next();
+              }
+            ]
           }
         }
       },
@@ -154,13 +166,13 @@ module.exports = function (grunt) {
     // Compiles ES6 with Babel
     babel: {
       options: {
-        sourceMap: true
+        sourceMap: false
       },
       dist: {
         files: [{
           expand: true,
           cwd: '<%= config.app %>/scripts',
-          src: '{,*/}*.js',
+          src: '**/*.js',
           dest: '.tmp/scripts',
           ext: '.js'
         }]
@@ -222,8 +234,8 @@ module.exports = function (grunt) {
       app: {
         ignorePath: /^\/|\.\.\//,
         src: [
-          '<%= config.app %>/includes/_head.jade',
-          '<%= config.app %>/includes/_scripts.jade',
+          '<%= config.app %>/includes/_head.pug',
+          '<%= config.app %>/includes/_scripts.pug',
         ],
         exclude: [
           'bower_components/modernizr/modernizr.js'
@@ -269,7 +281,7 @@ module.exports = function (grunt) {
       }
     },
 
-    jade: {
+    pug: {
       dist: {
         options: {
           pretty: true
@@ -278,7 +290,17 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%= config.app %>',
           dest: '.tmp',
-          src: '*.jade',
+          src: '*.pug',
+          ext: '.html'
+        }, {
+          expand: true,
+          cwd: '<%= config.app %>',
+          src: [
+            'includes/_footer.pug',
+            'includes/_head.pug',
+            'includes/_sidebar.pug'
+          ],
+          dest: '<%= config.dist %>',
           ext: '.html'
         }]
       }
@@ -391,11 +413,14 @@ module.exports = function (grunt) {
     // },
     // uglify: {
     //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/scripts/scripts.js': [
-    //         '<%= config.dist %>/scripts/scripts.js'
+    //     files: [{
+    //       expand: true,
+    //       cwd: '<%= config.app %>',
+    //       dest: '<%= config.dist %>',
+    //       src: [
+    //         'scripts/*.js'
     //       ]
-    //     }
+    //     }]
     //   }
     // },
     // concat: {
@@ -417,6 +442,14 @@ module.exports = function (grunt) {
             'fonts/{,*/}*.*'
           ]
         }, {
+          expand: true,
+          dot: true,
+          cwd: '.tmp',
+          dest: '<%= config.dist %>',
+          src: [
+            'scripts/**'
+          ]
+        }, {
           src: 'node_modules/apache-server-configs/dist/.htaccess',
           dest: '<%= config.dist %>/.htaccess'
         }, {
@@ -428,7 +461,25 @@ module.exports = function (grunt) {
         }, {
           expand: true,
           dot: true,
+          cwd: 'bower_components/uniform/themes/default',
+          src: ['images/*.*'],
+          dest: '<%= config.dist %>'
+        }, {
+          expand: true,
+          dot: true,
           cwd: 'bower_components/bootstrap/dist',
+          src: ['fonts/*.*'],
+          dest: '<%= config.dist %>'
+        }, {
+          expand: true,
+          dot: true,
+          cwd: 'bower_components/font-awesome',
+          src: ['fonts/*.*'],
+          dest: '<%= config.dist %>'
+        }, {
+          expand: true,
+          dot: true,
+          cwd: 'bower_components/simple-line-icons',
           src: ['fonts/*.*'],
           dest: '<%= config.dist %>'
         }, {
@@ -445,6 +496,50 @@ module.exports = function (grunt) {
         cwd: '<%= config.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      server: {
+        files: [
+          {
+            src: 'bower_components/jquery/dist/jquery.min.js',
+            dest: '.tmp/scripts/lib/jquery/jquery.js'
+          }, {
+            expand: true,
+            dot: true,
+            cwd: 'bower_components/bootstrap/js',
+            src: ['*.js'],
+            dest: '.tmp/scripts/lib/bootstrap'
+          }, {
+            src: 'bower_components/moment/moment.js',
+            dest: '.tmp/scripts/lib/moment/moment.js'
+          }, {
+            src: 'bower_components/bootstrap-daterangepicker/daterangepicker.js',
+            dest: '.tmp/scripts/lib/bootstrap-addons/daterangepicker.js'
+          }, {
+            src: 'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js',
+            dest: '.tmp/scripts/lib/bootstrap-addons/datepicker.js'
+          }, {
+            src: 'bower_components/bootstrap-hover-dropdown/bootstrap-hover-dropdown.js',
+            dest: '.tmp/scripts/lib/bootstrap-addons/bootstrap-hover-dropdown.js'
+          }, {
+            src: 'bower_components/bootstrap-select/dist/js/bootstrap-select.js',
+            dest: '.tmp/scripts/lib/bootstrap-addons/bootstrap-select.js'
+          }, {
+            src: 'bower_components/uniform/lib/jquery.uniform.js',
+            dest: '.tmp/scripts/lib/jquery/plugins/uniform.js'
+          }, {
+            src: 'bower_components/jquery-minicolors/jquery.minicolors.js',
+            dest: '.tmp/scripts/lib/jquery/plugins/minicolors.js'
+          }, {
+            src: 'bower_components/jquery-minicolors/jquery.minicolors.png',
+            dest: '.tmp/images/jquery.minicolors.png'
+          }, {
+            expand: true,
+            dot: true,
+            cwd: 'bower_components/flot',
+            src: ['*.js'],
+            dest: '.tmp/scripts/lib/flot'
+          }
+        ]
       }
     },
 
@@ -452,7 +547,7 @@ module.exports = function (grunt) {
     // reference in your app
     modernizr: {
       dist: {
-        dest: '<%= config.dist %>/scripts/vendor/modernizr.js',
+        dest: '<%= config.dist %>/scripts/lib/modernizr/modernizr.js',
         files: {
           src: [
             '<%= config.dist %>/scripts/{,*/}*.js',
@@ -478,21 +573,35 @@ module.exports = function (grunt) {
       }
     },
 
+    requirejs: {
+      compile: {
+        options: {
+          baseUrl: './',
+          mainConfigFile: 'scripts/config.js',
+          // name: 'path/to/almond', /* assumes a production build using almond, if you don't use almond, you need to set the "includes" or "modules" option instead of name */
+          include: [ 'src/main.js' ],
+          out: 'dist/scripts/optimized.js'
+        }
+      }
+    },
+
     // Run some tasks in parallel to speed up build process
     concurrent: {
       server: [
-        //'babel:dist',
+        'babel:dist',
         'sass:server',
-        'copy:styles'
+        'copy:styles',
+        'copy:server'
       ],
       test: [
-        //'babel',
+        'babel',
         'copy:styles'
       ],
       dist: [
-        //'babel',
+        'babel',
         'sass',
         'copy:styles',
+        'copy:server',
         'imagemin',
         'svgmin'
       ]
@@ -525,7 +634,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'wiredep',
-      'jade',
+      'pug',
       'svgstore:server',
       'concurrent:server',
       'autoprefixer',
@@ -557,7 +666,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'wiredep',
-    'jade',
+    'pug',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
