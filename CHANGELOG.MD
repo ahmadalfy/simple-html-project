@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0
+* Shifted from jade to pug
+
 ## 1.2.0
 
 * Added imagemin-optipng to optimize png images
